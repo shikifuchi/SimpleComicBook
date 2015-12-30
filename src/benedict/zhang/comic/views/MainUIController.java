@@ -4,7 +4,6 @@ import benedict.zhang.comic.common.SceneManager;
 import benedict.zhang.comic.common.UIKey;
 import benedict.zhang.comic.datamodel.ComicBook;
 import benedict.zhang.comic.datamodel.ComicPage;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -21,6 +20,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class MainUIController implements Initializable {
@@ -44,11 +44,6 @@ public class MainUIController implements Initializable {
     // current page of the comic to display on the ui
     private ComicPage currentPage;
 
-
-    private IntegerProperty fitWidth;
-
-    private IntegerProperty fitHeight;
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         _owner = SceneManager.getInstance().loadStage(UIKey.MAIN);
@@ -56,19 +51,14 @@ public class MainUIController implements Initializable {
     }
 
     private void bindUI() {
-        if (comicBook != null) {
-            if (comicBook.getPages().size() > 0) {
-                currentPage = new ComicPage(comicBook.getPages().get(0));
-                buildImageViewList();
-            }
+        if (comicBook != null) if (comicBook.getPages().size() > 0) {
+            currentPage = new ComicPage(comicBook.getPages().get(0));
+            buildImageViewList();
         }
         if (currentPage != null) {
             pageNumber.textProperty().bindBidirectional(currentPage.getIndexProperty());
-            pageNumber.textProperty().addListener(new ChangeListener<String>() {
-                @Override
-                public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                    // change the text will cause current page being selected
-                }
+            pageNumber.textProperty().addListener((observable, oldValue, newValue) -> {
+                // change the text will cause current page being selected
             });
             Double imageWidth = currentPage.getCommicPageFile().getWidth();
             Double imageHeight = currentPage.getCommicPageFile().getHeight();
@@ -148,7 +138,7 @@ public class MainUIController implements Initializable {
         index = index < 1 ? 1 : index;
         for (int i = 0; i < comicBook.getPages().size(); i++) {
             ComicPage page = comicBook.getPages().get(i);
-            if (page.getIndex() == index) {
+            if (Objects.equals(page.getIndex(), index)) {
                 currentPage.setPath(page.getPath());
                 currentPage.setIndex(page.getIndex());
                 currentPage.setCommicPageFile(page.getCommicPageFile());
@@ -170,7 +160,7 @@ public class MainUIController implements Initializable {
     }
 
 
-    class BookLoadingTask<ComicBook> extends Task {
+    class BookLoadingTask<ixComicBook> extends Task {
 
         private File comicFile;
 
