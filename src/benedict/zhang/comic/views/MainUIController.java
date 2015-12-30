@@ -153,11 +153,11 @@ public class MainUIController implements Initializable {
                 currentPage.setIndex(page.getIndex());
                 currentPage.setCommicPageFile(page.getCommicPageFile());
                 // TODO other operations when current page is changed
+                allImagesListView.getSelectionModel().select(index - 1);
+                allImagesListView.scrollTo(index - 1);
                 break;
             }
         }
-        allImagesListView.getSelectionModel().select(index - 1);
-        allImagesListView.scrollTo(index - 1);
     }
 
 
