@@ -1,0 +1,67 @@
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.geometry.Insets?>
+<BorderPane fx:controller="benedict.zhang.comic.views.MainUIController"
+            xmlns:fx="http://javafx.com/fxml">
+    <top>
+        <MenuBar>
+            <Menu fx:id="file" text="File">
+                <MenuItem fx:id="open" text="Open...." onAction="#openComic"></MenuItem>
+            </Menu>
+        </MenuBar>
+    </top>
+    <left>
+        <!-- The list of the images in the compressed file -->
+        <ListView fx:id="allImagesListView" minWidth="275">
+            <BorderPane.margin>
+                <Insets top="10" left="10" right="10" bottom="10"></Insets>
+            </BorderPane.margin>
+        </ListView>
+    </left>
+    <center>
+        <BorderPane>
+            <center>
+                <ImageView fx:id="pageView">
+
+                </ImageView>
+            </center>
+            <bottom>
+                <BorderPane fx:id="pageMenu">
+                    <BorderPane.margin>
+                        <Insets top="10" left="10" right="10" bottom="10"></Insets>
+                    </BorderPane.margin>
+                    <!-- Button to go to the previous page-->
+                    <left>
+                        <Button text="Previous" onAction="#previous"></Button>
+                    </left>
+                    <!-- text field to show the current page -->
+                    <center>
+                        <HBox alignment="CENTER">
+                            <TextField fx:id="pageNumber"></TextField>
+                            <Button fx:id="gotoPageButton" text="Go"></Button>
+                        </HBox>
+                    </center>
+                    <!-- Buttong to go to the next page -->
+                    <right>
+                        <Button text="Next" onAction="#next"></Button>
+                    </right>
+                    <!-- Button to go to the first page -->
+                    <bottom>
+                        <BorderPane>
+                            <center>
+                                <Button alignment="CENTER" text="Top" onAction="#top"></Button>
+                            </center>
+                        </BorderPane>
+                    </bottom>
+                </BorderPane>
+            </bottom>
+        </BorderPane>
+    </center>
+</BorderPane>
