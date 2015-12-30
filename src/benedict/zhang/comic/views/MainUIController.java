@@ -156,7 +156,8 @@ public class MainUIController implements Initializable {
                 break;
             }
         }
-        allImagesListView.getSelectionModel().select(index);
+        allImagesListView.getSelectionModel().select(index - 1);
+        allImagesListView.scrollTo(index - 1);
     }
 
 
