@@ -8,8 +8,9 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
 <BorderPane fx:controller="benedict.zhang.comic.views.MainUIController"
-            xmlns:fx="http://javafx.com/fxml">
+            xmlns:fx="http://javafx.com/fxml" onKeyPressed="#ShortCutKeyAction">
     <top>
         <MenuBar>
             <Menu fx:id="file" text="File">
@@ -44,8 +45,10 @@
                     <!-- text field to show the current page -->
                     <center>
                         <HBox alignment="CENTER">
-                            <TextField fx:id="pageNumber"></TextField>
+                            <Label fx:id="pageNumber"></Label>
+                            <!--
                             <Button fx:id="gotoPageButton" text="Go"></Button>
+                            -->
                         </HBox>
                     </center>
                     <!-- Buttong to go to the next page -->
