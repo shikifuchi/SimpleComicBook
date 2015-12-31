@@ -5,16 +5,16 @@ import benedict.zhang.comic.common.UIKey;
 import benedict.zhang.comic.datamodel.ComicBook;
 import benedict.zhang.comic.datamodel.ComicPage;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -29,13 +29,13 @@ public class MainUIController implements Initializable {
     private static final Integer LIST_VIEW_WIDTH = 225;
 
     @FXML
-    private ListView<ImageView> allImagesListView;
+    private ListView<ImageListItemView> allImagesListView;
 
     @FXML
     private ImageView pageView;
 
     @FXML
-    private TextField pageNumber;
+    private Label pageNumber;
 
     private Stage _owner;
 
@@ -60,7 +60,7 @@ public class MainUIController implements Initializable {
          * */
         allImagesListView.getSelectionModel().selectedIndexProperty().addListener(
                 (observable, oldValue, newValue) -> {
-                    gotoPage(newValue.intValue() + 1);
+                    gotoPage(newValue.intValue() + 1, false);
                 });
         /**
          *
@@ -96,6 +96,7 @@ public class MainUIController implements Initializable {
         for (ComicPage page : comicBook.getPages()) {
             Image image = page.getCommicPageFile();
             ImageView imageView = new ImageView();
+            Label pageNumber = new Label();
             imageView.setFitWidth(LIST_VIEW_WIDTH);
             Double imageHeight = image.getHeight();
             if (image.getWidth() > LIST_VIEW_WIDTH) {
@@ -104,7 +105,9 @@ public class MainUIController implements Initializable {
             }
             imageView.setFitHeight(imageHeight);
             imageView.setImage(image);
-            allImagesListView.getItems().add(page.getIndex() - 1, imageView);
+            pageNumber.setText(page.getIndexProperty().getValue());
+            ImageListItemView itemView = new ImageListItemView(pageNumber, imageView);
+            allImagesListView.getItems().add(page.getIndex() - 1, itemView);
         }
         allImagesListView.refresh();
     }
@@ -131,9 +134,13 @@ public class MainUIController implements Initializable {
      * and the selected page on the list view should be update
      */
     public void next(ActionEvent event) {
+        next();
+    }
+
+    private void next() {
         Integer index = currentPage.getIndex();
         index++;
-        gotoPage(index);
+        gotoPage(index, true);
     }
 
     /**
@@ -142,14 +149,28 @@ public class MainUIController implements Initializable {
      * and the selected page on the list view should be update
      */
     public void previous(ActionEvent event) {
+        previous();
+    }
+
+    private void previous() {
         Integer index = currentPage.getIndex();
         if (index == 1) return;
         index--;
-        gotoPage(index);
-
+        gotoPage(index, true);
     }
 
-    private void gotoPage(Integer index) {
+    /**
+     * 2016/01/01 change api
+     *
+     * @param index    the page number
+     *                 NOT the true index in the list
+     *                 the true index = page number - 1
+     * @param scrollTo if scroll to the select page
+     *                 this new parameter is added to indicate whether to scroll to the select page
+     *                 when the page is selected by the user manually, it is false
+     *                 if the page is selected because user click the navigate buttons or <- or ->  button it is true
+     */
+    private void gotoPage(Integer index, Boolean scrollTo) {
         index = index < 1 ? 1 : index;
         for (int i = 0; i < comicBook.getPages().size(); i++) {
             ComicPage page = comicBook.getPages().get(i);
@@ -159,7 +180,8 @@ public class MainUIController implements Initializable {
                 currentPage.setCommicPageFile(page.getCommicPageFile());
                 // TODO other operations when current page is changed
                 allImagesListView.getSelectionModel().select(index - 1);
-                allImagesListView.scrollTo(index - 1);
+                if (scrollTo)
+                    allImagesListView.scrollTo(index - 1);
                 break;
             }
         }
@@ -171,7 +193,12 @@ public class MainUIController implements Initializable {
      * the selected page on the list view should be update
      */
     public void top(ActionEvent event) {
-        gotoPage(1);
+        gotoPage(1, true);
+    }
+
+    public void ShortCutKeyAction(KeyEvent event) {
+        if (event.getCode() == KeyCode.RIGHT) next();
+        else if (event.getCode() == KeyCode.LEFT) previous();
     }
 
 
