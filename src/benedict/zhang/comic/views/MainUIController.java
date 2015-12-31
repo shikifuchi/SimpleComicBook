@@ -51,22 +51,6 @@ public class MainUIController implements Initializable {
     }
 
     private void bindUI() {
-        /**
-         *
-         * New feature 2016/01/01
-         * change the current page when select page in list view is changed
-         * Begin
-         *
-         * */
-        allImagesListView.getSelectionModel().selectedIndexProperty().addListener(
-                (observable, oldValue, newValue) -> {
-                    gotoPage(newValue.intValue() + 1);
-                });
-        /**
-         *
-         * End
-         *
-         * */
         if (comicBook != null) if (comicBook.getPages().size() > 0) {
             currentPage = new ComicPage(comicBook.getPages().get(0));
             buildImageViewList();
@@ -107,6 +91,7 @@ public class MainUIController implements Initializable {
             allImagesListView.getItems().add(page.getIndex() - 1, imageView);
         }
         allImagesListView.refresh();
+
     }
 
     public void openComic(ActionEvent event) {
