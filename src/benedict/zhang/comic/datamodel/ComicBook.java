@@ -6,6 +6,8 @@ import javafx.collections.FXCollections;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -43,6 +45,15 @@ public class ComicBook {
                     index++;
                 }
                 entry = zis.getNextEntry();
+            }
+            Collections.sort(tmpList, new Comparator<ComicPage>() {
+                @Override
+                public int compare(ComicPage o1, ComicPage o2) {
+                    return o1.getPath().compareTo(o2.getPath());
+                }
+            });
+            for (int i = 0; i < tmpList.size(); i++) {
+                tmpList.get(i).setIndex(i + 1);
             }
             this.setPages(tmpList);
         } catch (FileNotFoundException e) {
