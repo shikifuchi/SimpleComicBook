@@ -44,6 +44,10 @@ public class MainUIController implements Initializable {
     // current page of the comic to display on the ui
     private ComicPage currentPage;
 
+    private SimpleDoubleProperty imageViewHeight;
+
+    private SimpleDoubleProperty imageViewWidth;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         _owner = SceneManager.getInstance().loadStage(UIKey.MAIN);
@@ -76,20 +80,36 @@ public class MainUIController implements Initializable {
             pageNumber.textProperty().addListener((observable, oldValue, newValue) -> {
                 // change the text will cause current page being selected
             });
-            Double imageWidth = currentPage.getCommicPageFile().getWidth();
-            Double imageHeight = currentPage.getCommicPageFile().getHeight();
-            Double appWidth = SceneManager.getInstance().loadStage(UIKey.MAIN).getWidth() - 300;
-            Double appHeight = SceneManager.getInstance().loadStage(UIKey.MAIN).getHeight() - 200;
-            if (imageHeight > appHeight || imageWidth > appHeight) { // resize the image if it is too large to display
-                Double scaledRatio = appWidth / imageWidth < appHeight / imageHeight ? appWidth / imageWidth : appHeight / imageHeight;
-                imageWidth = imageWidth * scaledRatio;
-                imageHeight = imageHeight * scaledRatio;
-            }
-            pageView.fitWidthProperty().bindBidirectional(new SimpleDoubleProperty(imageWidth));
-            pageView.fitHeightProperty().bindBidirectional(new SimpleDoubleProperty(imageHeight));
+            updateImageView();
             pageView.imageProperty().bindBidirectional(currentPage.getImageProperty());
 
         }
+    }
+
+    private void updateImageView() {
+        if (imageViewWidth == null) {
+            imageViewWidth = new SimpleDoubleProperty(0.0);
+            pageView.fitWidthProperty().bindBidirectional(imageViewWidth);
+        }
+        if (imageViewHeight == null) {
+            imageViewHeight = new SimpleDoubleProperty(0.0);
+            pageView.fitHeightProperty().bindBidirectional(imageViewHeight);
+        }
+        calculateScaledRatio();
+
+    }
+
+    private void calculateScaledRatio() {
+        Double scaledRatio = 1.0;
+        Double imageWidth = currentPage.getCommicPageFile().getWidth();
+        Double imageHeight = currentPage.getCommicPageFile().getHeight();
+        Double appWidth = SceneManager.getInstance().loadStage(UIKey.MAIN).getWidth() - 300;
+        Double appHeight = SceneManager.getInstance().loadStage(UIKey.MAIN).getHeight() - 200;
+        if (imageHeight > appHeight || imageWidth > appWidth) { // resize the image if it is too large to display
+            scaledRatio = (appWidth / imageWidth) < (appHeight / imageHeight) ? appWidth / imageWidth : appHeight / imageHeight;
+        }
+        imageViewHeight.set(imageHeight * scaledRatio);
+        imageViewWidth.set(imageWidth * scaledRatio);
     }
 
     private void buildImageViewList() {
@@ -182,6 +202,7 @@ public class MainUIController implements Initializable {
                 allImagesListView.getSelectionModel().select(index - 1);
                 if (scrollTo)
                     allImagesListView.scrollTo(index - 1);
+                updateImageView();
                 break;
             }
         }
