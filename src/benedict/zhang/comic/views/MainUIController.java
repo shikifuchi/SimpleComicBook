@@ -4,22 +4,29 @@ import benedict.zhang.comic.common.SceneManager;
 import benedict.zhang.comic.common.UIKey;
 import benedict.zhang.comic.datamodel.ComicBook;
 import benedict.zhang.comic.datamodel.ComicPage;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.net.URL;
+import java.sql.Time;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
@@ -37,6 +44,9 @@ public class MainUIController implements Initializable {
     @FXML
     private Label pageNumber;
 
+    @FXML
+    private MenuItem cancelAuto;
+
     private Stage _owner;
 
     private ComicBook comicBook;
@@ -48,9 +58,14 @@ public class MainUIController implements Initializable {
 
     private SimpleDoubleProperty imageViewWidth;
 
+    private SimpleBooleanProperty autoMode;
+
+    private Timeline autoModeTimer;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         _owner = SceneManager.getInstance().loadStage(UIKey.MAIN);
+        autoMode = new SimpleBooleanProperty(false);
         bindUI();
     }
 
@@ -82,8 +97,31 @@ public class MainUIController implements Initializable {
             });
             updateImageView();
             pageView.imageProperty().bindBidirectional(currentPage.getImageProperty());
-
+            _owner.widthProperty().addListener((observable, oldValue, newValue) -> {
+                updateImageView();
+            });
+            _owner.heightProperty().addListener((observable, oldValue, newValue) -> {
+                updateImageView();
+            });
         }
+        autoMode.addListener((observable, oldValue, newValue) -> {
+            if (autoModeTimer == null) { // init timer
+                autoModeTimer = new Timeline(new KeyFrame(Duration.seconds(8), new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        next();
+                    }
+                }));
+            }
+            if (newValue) {
+                autoModeTimer.setCycleCount(Timeline.INDEFINITE);
+                autoModeTimer.play();
+            } else {
+                autoModeTimer.stop();
+            }
+        });
+
+        cancelAuto.visibleProperty().bindBidirectional(autoMode);
     }
 
     private void updateImageView() {
@@ -103,7 +141,7 @@ public class MainUIController implements Initializable {
         Double scaledRatio = 1.0;
         Double imageWidth = currentPage.getCommicPageFile().getWidth();
         Double imageHeight = currentPage.getCommicPageFile().getHeight();
-        Double appWidth = SceneManager.getInstance().loadStage(UIKey.MAIN).getWidth() - 300;
+        Double appWidth = SceneManager.getInstance().loadStage(UIKey.MAIN).getWidth() - 200;
         Double appHeight = SceneManager.getInstance().loadStage(UIKey.MAIN).getHeight() - 200;
         if (imageHeight > appHeight || imageWidth > appWidth) { // resize the image if it is too large to display
             scaledRatio = (appWidth / imageWidth) < (appHeight / imageHeight) ? appWidth / imageWidth : appHeight / imageHeight;
@@ -113,6 +151,7 @@ public class MainUIController implements Initializable {
     }
 
     private void buildImageViewList() {
+        allImagesListView.getItems().clear();
         for (ComicPage page : comicBook.getPages()) {
             Image image = page.getCommicPageFile();
             ImageView imageView = new ImageView();
@@ -133,6 +172,7 @@ public class MainUIController implements Initializable {
     }
 
     public void openComic(ActionEvent event) {
+        autoMode.setValue(false);
         if (_owner == null) {
             _owner = SceneManager.getInstance().loadStage(UIKey.MAIN);
         }
@@ -155,6 +195,14 @@ public class MainUIController implements Initializable {
      */
     public void next(ActionEvent event) {
         next();
+    }
+
+    public void auto(ActionEvent event) {
+        autoMode.setValue(true);
+    }
+
+    public void cancelAuto(ActionEvent event) {
+        autoMode.setValue(false);
     }
 
     private void next() {
@@ -223,7 +271,7 @@ public class MainUIController implements Initializable {
     }
 
 
-    class BookLoadingTask<ixComicBook> extends Task {
+    class BookLoadingTask<ComicBook> extends Task {
 
         private File comicFile;
 
