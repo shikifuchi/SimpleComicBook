@@ -290,6 +290,7 @@ public class MainUIController implements Initializable {
 
         @Override
         protected benedict.zhang.comic.datamodel.ComicBook call() throws Exception {
+            _owner.setTitle(oriTitle);
             comicBook = new benedict.zhang.comic.datamodel.ComicBook(comicFile);
             return comicBook;
         }

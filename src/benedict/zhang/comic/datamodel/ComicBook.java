@@ -60,15 +60,17 @@ public class ComicBook {
             e.printStackTrace();
         } catch (IOException ioe) {
             ioe.printStackTrace();
+        } catch (Exception une) {
+            une.printStackTrace();
         } finally {
             try {
                 if (zis != null) {
                     zis.close();
                 }
 
-//                if (bis != null) {
-//                    bis.close();
-//                }
+                if (bis != null) {
+                    bis.close();
+                }
             } catch (Exception e) {
 
             }
