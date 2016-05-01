@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_comicreader" default="compile.module.comicreader">
+  <dirname property="module.comicreader.basedir" file="${ant.file.module_comicreader}"/>
+  
+  <property name="module.jdk.home.comicreader" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.comicreader" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.comicreader" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.comicreader" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="comicreader.output.dir" value="${module.comicreader.basedir}/out/production/ComicReader"/>
+  <property name="comicreader.testoutput.dir" value="${module.comicreader.basedir}/out/test/ComicReader"/>
+  
+  <path id="comicreader.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="comicreader.module.production.classpath">
+    <path refid="${module.jdk.classpath.comicreader}"/>
+  </path>
+  
+  <path id="comicreader.runtime.production.module.classpath">
+    <pathelement location="${comicreader.output.dir}"/>
+  </path>
+  
+  <path id="comicreader.module.classpath">
+    <path refid="${module.jdk.classpath.comicreader}"/>
+    <pathelement location="${comicreader.output.dir}"/>
+  </path>
+  
+  <path id="comicreader.runtime.module.classpath">
+    <pathelement location="${comicreader.testoutput.dir}"/>
+    <pathelement location="${comicreader.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.comicreader">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.comicreader">
+    <patternset refid="excluded.from.module.comicreader"/>
+  </patternset>
+  
+  <path id="comicreader.module.sourcepath">
+    <dirset dir="${module.comicreader.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.comicreader" depends="compile.module.comicreader.production,compile.module.comicreader.tests" description="Compile module ComicReader"/>
+  
+  <target name="compile.module.comicreader.production" depends="register.custom.compilers" description="Compile module ComicReader; production classes">
+    <mkdir dir="${comicreader.output.dir}"/>
+    <javac2 destdir="${comicreader.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.comicreader}/javac">
+      <compilerarg line="${compiler.args.comicreader}"/>
+      <bootclasspath refid="comicreader.module.bootclasspath"/>
+      <classpath refid="comicreader.module.production.classpath"/>
+      <src refid="comicreader.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.comicreader"/>
+    </javac2>
+    
+    <copy todir="${comicreader.output.dir}">
+      <fileset dir="${module.comicreader.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.comicreader.tests" depends="register.custom.compilers,compile.module.comicreader.production" description="compile module ComicReader; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.comicreader" description="cleanup module">
+    <delete dir="${comicreader.output.dir}"/>
+    <delete dir="${comicreader.testoutput.dir}"/>
+  </target>
+</project>
